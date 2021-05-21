@@ -118,15 +118,17 @@ app.post('/', async (req, res) => {
   } catch (err) {
     console.log('error', err)
     botMsgSent = await bot.sendMessage(chatId, "🙅 There were problems fetching the latest $GRUMPY token info. Figures...")
-    res.send(500)
+    return res.send(500)
   }
   
   resp = '💵 Price: ' + getGrumpyPrice(tokenInfo.price) + '\n' +
          '💎 🤘 Holders: ' + numberWithCommas(tokenInfo.holdersCount) + '\n'
   try {
     botMsgSent = await bot.sendMessage(chatId, resp);
+    return res.send(200)
   } catch (err) {
     console.log('error', err)
+    return res.send(500)
   }
 })
 
