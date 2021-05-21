@@ -32,7 +32,7 @@ app.get('/public-key', (req, res) => {
 })
 
 const production  = 'https://grumpy-telegram.herokuapp.com';
-const development = 'tunneled url goes here';
+const development = process.env.TUNNEL_URL;
 const url = (process.env.NODE_ENV ? production : development);
 bot.setWebHook(url, {
   certificate: '/crt.pem', // Path to your crt.pem
@@ -67,29 +67,31 @@ const haveNotSeenMessageBefore = (message) => {
 
 app.post('/', async (req, res) => {
   const payload = req.body
-  if (payload.message && payload.message.text && payload.message.text.startsWith('/price') && haveNotSeenMessageBefore(payload.message)) {
-    const msg = payload.message
-    const chatId = msg.chat.id
-    
-    const grumpyTokenContract = '0x93b2fff814fcaeffb01406e80b4ecd89ca6a021b'
-    let resp, tokenInfo, botMsgSent
-    
-    try {
-      let tokenInfoRequest = await fetch(`https://api.ethplorer.io/getTokenInfo/${grumpyTokenContract}?apiKey=${ethplorerApiKey}`)
-      tokenInfo = await tokenInfoRequest.json()
-    } catch (err) {
-      console.log('error', err)
-      return botMsgSent = await bot.sendMessage(chatId, "🙅 There were problems fetching the latest $GRUMPY token info. Figures...");
-    }
-    
-    resp = '💵 Price: ' + getGrumpyPrice(tokenInfo.price) + '\n' +
-           '💎 🤘 Holders: ' + tokenInfo.holdersCount + '\n' +
-           '⏰ Last Updated: ' + getDateFromTimestamp(tokenInfo.lastUpdated)
-    try {
-      botMsgSent = await bot.sendMessage(chatId, resp);
-    } catch (err) {
-      console.log('error', err)
-    }
+  const respondToMessage = payload.message && payload.message.text && payload.message.text.startsWith('/price') && haveNotSeenMessageBefore(payload.message)
+  if (!respondToMessage) return res.send(200)
+
+  const msg = payload.message
+  const chatId = msg.chat.id
+  
+  const grumpyTokenContract = '0x93b2fff814fcaeffb01406e80b4ecd89ca6a021b'
+  let resp, tokenInfo, botMsgSent
+  
+  try {
+    let tokenInfoRequest = await fetch(`https://api.ethplorer.io/getTokenInfo/${grumpyTokenContract}?apiKey=${ethplorerApiKey}`)
+    tokenInfo = await tokenInfoRequest.json()
+  } catch (err) {
+    console.log('error', err)
+    botMsgSent = await bot.sendMessage(chatId, "🙅 There were problems fetching the latest $GRUMPY token info. Figures...")
+    res.send(500)
+  }
+  
+  resp = '💵 Price: ' + getGrumpyPrice(tokenInfo.price) + '\n' +
+         '💎 🤘 Holders: ' + tokenInfo.holdersCount + '\n' +
+         '⏰ Last Updated: ' + getDateFromTimestamp(tokenInfo.lastUpdated)
+  try {
+    botMsgSent = await bot.sendMessage(chatId, resp);
+  } catch (err) {
+    console.log('error', err)
   }
 })
 
