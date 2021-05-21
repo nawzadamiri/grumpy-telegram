@@ -67,7 +67,9 @@ const haveNotSeenMessageBefore = (message) => {
 
 app.post('/', async (req, res) => {
   const payload = req.body
-  const respondToMessage = payload.message && payload.message.text && payload.message.text.startsWith('/price') && haveNotSeenMessageBefore(payload.message)
+  console.log(JSON.stringify(payload))
+  const respondToMessage = payload.message && !payload.message.from.is_bot && payload.message.text && payload.message.text.startsWith('/price') && haveNotSeenMessageBefore(payload.message)
+  console.log('will respond to msg: ' + respondToMessage)
   if (!respondToMessage) return res.send(200)
 
   const msg = payload.message
