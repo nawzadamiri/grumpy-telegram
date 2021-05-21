@@ -122,7 +122,7 @@ app.post('/', async (req, res) => {
   }
   
   resp = '💵 Price: ' + getGrumpyPrice(tokenInfo.price) + '\n' +
-         '💎 🤘 Holders: ' + numberWithCommas(tokenInfo.holdersCount) + '\n'
+         '💎 Holders: ' + numberWithCommas(tokenInfo.holdersCount) + '\n'
   try {
     botMsgSent = await bot.sendMessage(chatId, resp);
     return res.send(200)
