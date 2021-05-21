@@ -44,20 +44,20 @@ const getGrumpyPrice = (priceInfo) => {
   return Number.parseFloat(priceInfo.rate).toFixed(numDecimals)
 }
 
-// could be useful in the future so I am leaving this here for now
-// const numberWithCommas = (number) => {
-//   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-// }
 
-const getDateFromTimestamp = (timestamp) => {
-  const milliseconds = timestamp * 1000
-  const date = new Date(milliseconds)
-  return date.toLocaleString("en-US", {timeZoneName: "short"})
+const numberWithCommas = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+// could be useful in the future so I am leaving this here for now
+// const getDateFromTimestamp = (timestamp) => {
+//   const milliseconds = timestamp * 1000
+//   const date = new Date(milliseconds)
+//   return date.toLocaleString("en-US", {timeZoneName: "short"})
+// }
 
 const minutesSinceTimestamp = (timestamp) => {
   const tsMilliseconds = timestamp * 1000
-  const tsDate = new Date(tsMilliseconds)
 
   const now = Date.now()
   const millisecondsBetweenTsAndNow = now - tsMilliseconds
@@ -122,8 +122,7 @@ app.post('/', async (req, res) => {
   }
   
   resp = '💵 Price: ' + getGrumpyPrice(tokenInfo.price) + '\n' +
-         '💎 🤘 Holders: ' + tokenInfo.holdersCount + '\n' +
-         '⏰ Last Updated: ' + getDateFromTimestamp(tokenInfo.lastUpdated)
+         '💎 🤘 Holders: ' + numberWithCommas(tokenInfo.holdersCount) + '\n'
   try {
     botMsgSent = await bot.sendMessage(chatId, resp);
   } catch (err) {
