@@ -31,8 +31,8 @@ app.get('/public-key', (req, res) => {
   readStream.pipe(res);
 })
 
-const production  = 'https://examplePage.com';
-const development = 'https://13d5ec0acd7e.ngrok.io';
+const production  = 'https://grumpy-telegram.herokuapp.com/';
+const development = 'your local tunneled url here';
 const url = (process.env.NODE_ENV ? production : development);
 bot.setWebHook(url, {
   certificate: '/crt.pem', // Path to your crt.pem
