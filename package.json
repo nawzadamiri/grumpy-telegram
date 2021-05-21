@@ -1,0 +1,25 @@
+{
+  "name": "grumpy-telegram",
+  "version": "1.0.0",
+  "description": "a telegram bot for grumpy prices",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Financegrumpy/grumpy-telegram.git"
+  },
+  "author": "Grumpy Finance",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Financegrumpy/grumpy-telegram/issues"
+  },
+  "homepage": "https://github.com/Financegrumpy/grumpy-telegram#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "node-fetch": "^2.6.1",
+    "node-telegram-bot-api": "^0.53.0"
+  }
+}
