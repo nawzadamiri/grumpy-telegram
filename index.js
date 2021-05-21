@@ -4,6 +4,7 @@ const fetch = require('node-fetch')
 const fileSystem = require('fs')
 const path = require('path')
 const TelegramBot = require('node-telegram-bot-api')
+const { start } = require('repl')
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -54,21 +55,50 @@ const getDateFromTimestamp = (timestamp) => {
   return date.toLocaleString("en-US", {timeZoneName: "short"})
 }
 
+const minutesSinceTimestamp = (timestamp) => {
+  const tsMilliseconds = timestamp * 1000
+  const tsDate = new Date(tsMilliseconds)
+
+  const now = Date.now()
+  const millisecondsBetweenTsAndNow = now - tsMilliseconds
+  const minutesBetweenTsAndNow =  millisecondsBetweenTsAndNow / 1000
+  return minutesBetweenTsAndNow
+}
+
 let recentlySeenMessageIds = []
 
 const haveNotSeenMessageBefore = (message) => {
-  console.log('Have I seen this before?')
-  console.log(recentlySeenMessageIds.includes(message.message_id))
   if (recentlySeenMessageIds.includes(message.message_id)) return false
   recentlySeenMessageIds.push(message.message_id)
   return true
+}
+
+const willRespondToMessage = (message) => {
+  const exists = message
+  const isFromBot = message.from.is_bot 
+  const hasText = message.text
+  const startsWithPrice = hasText && message.text.startsWith('/price')
+  const isNew = haveNotSeenMessageBefore(message)
+  const isLessThanOneMinuteOld = minutesSinceTimestamp(message.date) <= 1
+
+  console.log(`
+    This message...
+    - Exists: ${message ? JSON.stringify(message) : false},
+    - Is From A Bot: ${isFromBot},
+    - Has Text: ${hasText},
+    - Starts With /Price: ${startsWithPrice},
+    - Is New: ${isNew},
+    - Is This Old: ${minutesSinceTimestamp(message.date)}
+  `)
+
+  return exists && !isFromBot && hasText && startsWithPrice && isNew && isLessThanOneMinuteOld
 }
 
 
 app.post('/', async (req, res) => {
   const payload = req.body
   console.log(JSON.stringify(payload))
-  const respondToMessage = payload.message && !payload.message.from.is_bot && payload.message.text && payload.message.text.startsWith('/price') && haveNotSeenMessageBefore(payload.message)
+  const respondToMessage = willRespondToMessage(payload.message)
   console.log('will respond to msg: ' + respondToMessage)
   if (!respondToMessage) return res.send(200)
 
