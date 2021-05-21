@@ -43,9 +43,10 @@ const getGrumpyPrice = (priceInfo) => {
   return Number.parseFloat(priceInfo.rate).toFixed(numDecimals)
 }
 
-const numberWithCommas = (number) => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
+// could be useful in the future so I am leaving this here for now
+// const numberWithCommas = (number) => {
+//   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+// }
 
 const getDateFromTimestamp = (timestamp) => {
   const milliseconds = timestamp * 1000
@@ -82,7 +83,6 @@ app.post('/', async (req, res) => {
     }
     
     resp = '💵 Price: ' + getGrumpyPrice(tokenInfo.price) + '\n' +
-           '🌏 Supply: ' + numberWithCommas(tokenInfo.totalSupply) + '\n' +
            '💎 🤘 Holders: ' + tokenInfo.holdersCount + '\n' +
            '⏰ Last Updated: ' + getDateFromTimestamp(tokenInfo.lastUpdated)
     try {
