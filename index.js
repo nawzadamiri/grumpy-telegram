@@ -31,8 +31,8 @@ app.get('/public-key', (req, res) => {
   readStream.pipe(res);
 })
 
-const production  = 'https://grumpy-telegram.herokuapp.com/';
-const development = 'your local tunneled url here';
+const production  = 'https://grumpy-telegram.herokuapp.com';
+const development = 'tunneled url goes here';
 const url = (process.env.NODE_ENV ? production : development);
 bot.setWebHook(url, {
   certificate: '/crt.pem', // Path to your crt.pem
@@ -67,7 +67,7 @@ const haveNotSeenMessageBefore = (message) => {
 
 app.post('/', async (req, res) => {
   const payload = req.body
-  if (payload.message && payload.message.text.startsWith('/price') && haveNotSeenMessageBefore(payload.message)) {
+  if (payload.message && payload.message.text && payload.message.text.startsWith('/price') && haveNotSeenMessageBefore(payload.message)) {
     const msg = payload.message
     const chatId = msg.chat.id
     
