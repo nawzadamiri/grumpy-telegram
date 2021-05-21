@@ -73,12 +73,15 @@ const haveNotSeenMessageBefore = (message) => {
   return true
 }
 
-const willRespondToMessage = (message) => {
-  const exists = message
+const willRespondToMessage = (payload) => {
+  const exists = Object.prototype.hasOwnProperty.call(payload, 'message')
+  if (!exists) return false
+  const message = payload.message
   const isFromBot = message.from.is_bot 
   const hasText = message.text
   const startsWithPrice = hasText && message.text.startsWith('/price')
   const isNew = haveNotSeenMessageBefore(message)
+  const isBotCommand = message.entities && message.entities.find(e => e.type === 'bot_command') !== undefined
   const isLessThanOneMinuteOld = minutesSinceTimestamp(message.date) <= 1
 
   console.log(`
@@ -88,17 +91,18 @@ const willRespondToMessage = (message) => {
     - Has Text: ${hasText},
     - Starts With /Price: ${startsWithPrice},
     - Is New: ${isNew},
+    - Is Bot Command: ${isBotCommand},
     - Is This Old: ${minutesSinceTimestamp(message.date)}
   `)
 
-  return exists && !isFromBot && hasText && startsWithPrice && isNew && isLessThanOneMinuteOld
+  return exists && !isFromBot && hasText && startsWithPrice && isBotCommand && isNew && isLessThanOneMinuteOld
 }
 
 
 app.post('/', async (req, res) => {
   const payload = req.body
   console.log(JSON.stringify(payload))
-  const respondToMessage = willRespondToMessage(payload.message)
+  const respondToMessage = willRespondToMessage(payload)
   console.log('will respond to msg: ' + respondToMessage)
   if (!respondToMessage) return res.send(200)
 
