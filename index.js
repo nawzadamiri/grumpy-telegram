@@ -82,7 +82,6 @@ const willRespondToMessage = (payload) => {
   const startsWithPrice = hasText && message.text.startsWith('/price')
   const isNew = haveNotSeenMessageBefore(message)
   const isBotCommand = message.entities && message.entities.find(e => e.type === 'bot_command') !== undefined
-  const isLessThanOneMinuteOld = minutesSinceTimestamp(message.date) <= 5
 
   console.log(`
     This message...
@@ -95,7 +94,7 @@ const willRespondToMessage = (payload) => {
     - Is This Old: ${minutesSinceTimestamp(message.date)}
   `)
 
-  return exists && !isFromBot && hasText && startsWithPrice && isBotCommand && isNew && isLessThanOneMinuteOld
+  return exists && !isFromBot && hasText && startsWithPrice && isBotCommand && isNew
 }
 
 
