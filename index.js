@@ -4,12 +4,13 @@ const fetch = require('node-fetch')
 const fileSystem = require('fs')
 const path = require('path')
 const TelegramBot = require('node-telegram-bot-api')
-const { start } = require('repl')
+const cors = require('cors')
 const app = express()
 const port = process.env.PORT || 3000
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
+app.use(cors())
 
 const telegramToken = process.env.TELEGRAM_BOT_TOKEN
 const ethplorerApiKey = process.env.ETHPLORER_API_KEY
@@ -83,6 +84,7 @@ const willRespondToMessage = (payload) => {
   const startsWithPrice = hasText && message.text.startsWith('/price')
   const isNew = haveNotSeenMessageBefore(message)
   const isBotCommand = message.entities && message.entities.find(e => e.type === 'bot_command') !== undefined
+  const isLessThanFiveMinuteOld = minutesSinceTimestamp(message.date) <= 5
 
   console.log(`
     This message...
@@ -92,10 +94,10 @@ const willRespondToMessage = (payload) => {
     - Starts With /Price: ${startsWithPrice},
     - Is New: ${isNew},
     - Is Bot Command: ${isBotCommand},
-    - Is This Old: ${minutesSinceTimestamp(message.date)}
+    - Is This Old (mins): ${minutesSinceTimestamp(message.date)}
   `)
 
-  return exists && !isFromBot && hasText && startsWithPrice && isBotCommand && isNew
+  return exists && !isFromBot && hasText && startsWithPrice && isBotCommand && isNew && isLessThanFiveMinuteOld
 }
 
 app.post('/', async (req, res) => {
