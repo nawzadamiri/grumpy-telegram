@@ -13,6 +13,7 @@ app.use(bodyParser.json())
 
 const telegramToken = process.env.TELEGRAM_BOT_TOKEN
 const ethplorerApiKey = process.env.ETHPLORER_API_KEY
+const grumpyTokenContract = '0x93b2fff814fcaeffb01406e80b4ecd89ca6a021b'
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(telegramToken, {polling: false})
@@ -97,7 +98,6 @@ const willRespondToMessage = (payload) => {
   return exists && !isFromBot && hasText && startsWithPrice && isBotCommand && isNew
 }
 
-
 app.post('/', async (req, res) => {
   const payload = req.body
   console.log(JSON.stringify(payload))
@@ -125,6 +125,30 @@ app.post('/', async (req, res) => {
   try {
     botMsgSent = await bot.sendMessage(chatId, resp);
     return res.send(200)
+  } catch (err) {
+    console.log('error', err)
+    return res.send(500)
+  }
+})
+
+let tokenInfo
+let lastRequested
+app.get('/token-info', async (req, res) => {
+  const today = new Date
+  const now = today.getTime()
+  const fiveMinutes = 1000 * 60 * 5
+
+  // send tokenInfo stored in memory if the last request was less than 5 minutes ago
+  if (tokenInfo !== undefined && lastRequested !== undefined && now - lastRequested <= fiveMinutes) {
+    return res.send(tokenInfo)
+  }
+  // get fresh tokenInfo
+  try {
+    let tokenInfoRequest = await fetch(`https://api.ethplorer.io/getTokenInfo/${grumpyTokenContract}?apiKey=${ethplorerApiKey}`)
+    tokenInfo = await tokenInfoRequest.json()
+    lastRequested = new Date().getTime()
+    console.log('sending new token info', lastRequested)
+    return res.send(tokenInfo)
   } catch (err) {
     console.log('error', err)
     return res.send(500)
