@@ -5,6 +5,7 @@ const fileSystem = require('fs')
 const path = require('path')
 const TelegramBot = require('node-telegram-bot-api')
 const cors = require('cors')
+const Web3 = require('web3')
 const app = express()
 const port = process.env.PORT || 3000
 
@@ -14,7 +15,10 @@ app.use(cors())
 
 const telegramToken = process.env.TELEGRAM_BOT_TOKEN
 const ethplorerApiKey = process.env.ETHPLORER_API_KEY
+const infuraId = process.env.INFURA_ID
 const grumpyTokenContract = '0x93b2fff814fcaeffb01406e80b4ecd89ca6a021b'
+
+let web3 = new Web3(new Web3.providers.HttpProvider(`https://mainnet.infura.io/${infuraId}`))
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(telegramToken, {polling: false})
@@ -155,6 +159,118 @@ app.get('/token-info', async (req, res) => {
     console.log('error', err)
     return res.send(500)
   }
+})
+
+let charityInfo
+let lastRequestedCharity
+app.get('/charity-progress', async (req, res) => {
+  const today = new Date
+  const now = today.getTime()
+  const fiveMinutes = 1000 * 60 * 5
+
+  // send charityInfo stored in memory if the last request was less than 5 minutes ago
+  if (charityInfo !== undefined && lastRequestedCharity !== undefined && now - lastRequestedCharity <= fiveMinutes) {
+    return res.send(charityInfo)
+  }
+
+  const grumpyContractId = '0x93B2FfF814FCaEFFB01406e80B4Ecd89Ca6A021b'
+  const grumpyEthCharityWallet = '0xa56891cfbd0175e6fc46bf7d647de26100e95c78'
+  const dogeWalletId = 'DMWU6225EFAHjEgWXQJZsYo3ecVCTvboGE'
+  const ltcWalletId = 'ltc1q2k308glzler2vhyjy8a4uayy5erzx7xwcud3xl'
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  // load eth wallet
+  let ethWallet
+  try {
+    let request = await fetch(`https://api.ethplorer.io/getAddressInfo/${grumpyEthCharityWallet}?apiKey=${ethplorerApiKey}`)
+    let json = await request.json()
+    ethWallet = json
+  } catch (err) {
+    console.log('error getting eth wallet', err)
+    return res.send(500)
+  }
+
+  // find the grumpy token in the eth wallet
+  const grumpyTokenData = ethWallet.tokens.find(t => {
+    return t.tokenInfo.address.toLowerCase() == grumpyContractId.toLowerCase()
+  })
+  // set Eth USD value
+  const ethBalance = ethWallet.ETH.balance
+  const ethUsdValue = ethBalance * ethWallet.ETH.price.rate
+  // set Grumpy balance
+  const grumpyBalance = web3.utils.fromWei(grumpyTokenData.balance.toLocaleString('fullwide', {useGrouping:false}), 'gwei')
+  // set Grumpy USD value
+  const grumpyToUsdRate = Number.parseFloat(grumpyTokenData.tokenInfo.price.rate).toFixed(parseInt(grumpyTokenData.tokenInfo.decimals))
+  const grumpyUsdValue = grumpyToUsdRate * (grumpyBalance)
+
+  // load doge wallet data
+  let dogeWallet
+  try {
+    let request = await fetch(`https://chain.so/api/v2/get_address_balance/DOGE/${dogeWalletId}/500`)
+    let json = await request.json()
+    dogeWallet = json
+  } catch (err) {
+    console.log('error getting doge wallet', err)
+    return res.send(500)
+  }
+
+  let dogePrice
+  try {
+    let request = await fetch('https://chain.so/api/v2/get_price/DOGE')
+    let json = await request.json()
+    dogePrice = json
+  } catch (err) {
+    console.log('error getting doge price', err)
+    return res.send(500)
+  }
+
+  // set doge balance
+  const dogeBalance = dogeWallet.data.confirmed_balance
+  // set doge to usd
+  const dogeUsdRate = dogePrice.data.prices.find(p => p.price_base === 'USD').price
+  const dogeUsdValue = parseFloat(dogeUsdRate) * parseFloat(dogeBalance)
+
+  // load litecoin wallet data
+  let ltcWallet
+  try {
+    let request = await fetch(`https://chain.so/api/v2/get_address_balance/LTC/${ltcWalletId}/500`)
+    let json = await request.json()
+    ltcWallet = json
+  } catch (err) {
+    console.log('error getting ltc wallet', err)
+    return res.send(500)
+  }
+
+  let ltcPrice
+  try {
+    let request = await fetch('https://chain.so/api/v2/get_price/LTC')
+    let json = await request.json()
+    ltcPrice = json
+  } catch (err) {
+    console.log('error getting ltc price')
+    return res.send(500)
+  }
+
+  // set litecoin balance
+  const ltcBalance = ltcWallet.data.confirmed_balance
+  // set ltc to usd
+  const ltcUsdRate = ltcPrice.data.prices.find(p => p.price_base === 'USD').price
+  const ltcUsdValue = parseFloat(ltcUsdRate) * parseFloat(ltcBalance)
+
+  // set charity info and send it
+  charityInfo = {
+    ethBalance: ethBalance,
+    ethUsdValue: ethUsdValue,
+    grumpyBalance: grumpyBalance,
+    grumpyUsdValue: grumpyUsdValue,
+    dogeBalance: dogeBalance,
+    dogeUsdValue: dogeUsdValue,
+    ltcBalance: ltcBalance,
+    ltcUsdValue: ltcUsdValue
+  }
+  return res.send(charityInfo)
 })
 
 app.listen(port, () => {
