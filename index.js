@@ -203,7 +203,10 @@ app.get('/charity-progress', async (req, res) => {
   const grumpyBalance = web3.utils.fromWei(grumpyTokenData.balance.toLocaleString('fullwide', {useGrouping:false}), 'gwei')
   // set Grumpy USD value
   const grumpyToUsdRate = Number.parseFloat(grumpyTokenData.tokenInfo.price.rate).toFixed(parseInt(grumpyTokenData.tokenInfo.decimals))
-  const grumpyUsdValue = grumpyToUsdRate * (grumpyBalance)
+  const grumpyUsdValue = grumpyToUsdRate * grumpyBalance
+  // set Grumpy balance without 1T tokens
+  const grumpyBalanceWithout1T = grumpyBalance - 1000000000000
+  const grumpyUsdValueWithout1T = grumpyToUsdRate * grumpyBalanceWithout1T
 
   // load doge wallet data
   let dogeWallet
@@ -259,16 +262,23 @@ app.get('/charity-progress', async (req, res) => {
   const ltcUsdRate = ltcPrice.data.prices.find(p => p.price_base === 'USD').price
   const ltcUsdValue = parseFloat(ltcUsdRate) * parseFloat(ltcBalance)
 
+  // set totals
+  const totalUsdValue = ethUsdValue + grumpyUsdValue + dogeUsdValue + ltcUsdValue
+  const totalUsdValueWithout1TGrumpy =  ethUsdValue + grumpyUsdValueWithout1T + dogeUsdValue + ltcUsdValue
   // set charity info and send it
   charityInfo = {
     ethBalance: ethBalance,
     ethUsdValue: ethUsdValue,
     grumpyBalance: grumpyBalance,
     grumpyUsdValue: grumpyUsdValue,
+    grumpyBalanceWithout1T: grumpyBalanceWithout1T,
+    grumpyUsdValueWithout1T: grumpyUsdValueWithout1T,
     dogeBalance: dogeBalance,
     dogeUsdValue: dogeUsdValue,
     ltcBalance: ltcBalance,
-    ltcUsdValue: ltcUsdValue
+    ltcUsdValue: ltcUsdValue,
+    totalUsdValue: totalUsdValue,
+    totalUsdValueWithout1TGrumpy: totalUsdValueWithout1TGrumpy
   }
   return res.send(charityInfo)
 })
