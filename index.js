@@ -268,17 +268,24 @@ app.get('/charity-progress', async (req, res) => {
   // set charity info and send it
   charityInfo = {
     ethBalance: ethBalance,
-    ethUsdValue: '$' + numberWithCommas(ethUsdValue.toFixed(2)),
+    ethUsdValue:  Number.parseFloat(ethUsdValue.toFixed(2)),
+    ethUsdValueFormatted: '$' + numberWithCommas(ethUsdValue.toFixed(2)),
     grumpyBalance: grumpyBalance,
-    grumpyUsdValue: '$' + numberWithCommas(grumpyUsdValue.toFixed(2)),
+    grumpyUsdValue:  Number.parseFloat(grumpyUsdValue.toFixed(2)),
+    grumpyUsdValueFormatted: '$' + numberWithCommas(grumpyUsdValue.toFixed(2)),
     grumpyBalanceWithout1T: grumpyBalanceWithout1T,
-    grumpyUsdValueWithout1T: '$' + numberWithCommas(grumpyUsdValueWithout1T.toFixed(2)),
+    grumpyUsdValueWithout1T:  Number.parseFloat(grumpyUsdValueWithout1T.toFixed(2)),
+    grumpyUsdValueWithout1TFormatted: '$' + numberWithCommas(grumpyUsdValueWithout1T.toFixed(2)),
     dogeBalance: dogeBalance,
-    dogeUsdValue: '$' + numberWithCommas(dogeUsdValue.toFixed(2)),
+    dogeUsdValue:  Number.parseFloat(dogeUsdValue.toFixed(2)),
+    dogeUsdValueFormatted: '$' + numberWithCommas(dogeUsdValue.toFixed(2)),
     ltcBalance: ltcBalance,
-    ltcUsdValue: '$' + numberWithCommas(ltcUsdValue.toFixed(2)),
-    totalUsdValue: '$' + numberWithCommas(totalUsdValue.toFixed(2)),
-    totalUsdValueWithout1TGrumpy: '$' + numberWithCommas(totalUsdValueWithout1TGrumpy.toFixed(2))
+    ltcUsdValue: ltcUsdValue.toFixed(2),
+    ltcUsdValueFormatted: '$' + numberWithCommas(ltcUsdValue.toFixed(2)),
+    totalUsdValue: Number.parseFloat(totalUsdValue.toFixed(2)),
+    totalUsdValueFormatted: '$' + numberWithCommas(totalUsdValue.toFixed(2)),
+    totalUsdValueWithout1TGrumpy:  Number.parseFloat(totalUsdValueWithout1TGrumpy.toFixed(2)),
+    totalUsdValueWithout1TGrumpyFormatted: '$' + numberWithCommas(totalUsdValueWithout1TGrumpy.toFixed(2))
   }
   return res.send(charityInfo)
 })
