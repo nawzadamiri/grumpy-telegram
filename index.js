@@ -205,7 +205,7 @@ app.get('/charity-progress', async (req, res) => {
   const grumpyToUsdRate = Number.parseFloat(grumpyTokenData.tokenInfo.price.rate).toFixed(parseInt(grumpyTokenData.tokenInfo.decimals))
   const grumpyUsdValue = grumpyToUsdRate * grumpyBalance
   // set Grumpy balance without 1T tokens
-  const grumpyBalanceWithout1T = grumpyBalance - 1000000000000
+  const grumpyBalanceWithout1T = (grumpyBalance - 1000000000000).toLocaleString('fullwide', {useGrouping:false})
   const grumpyUsdValueWithout1T = grumpyToUsdRate * grumpyBalanceWithout1T
 
   // load doge wallet data
@@ -268,17 +268,17 @@ app.get('/charity-progress', async (req, res) => {
   // set charity info and send it
   charityInfo = {
     ethBalance: ethBalance,
-    ethUsdValue: ethUsdValue,
+    ethUsdValue: '$' + numberWithCommas(ethUsdValue.toFixed(2)),
     grumpyBalance: grumpyBalance,
-    grumpyUsdValue: grumpyUsdValue,
+    grumpyUsdValue: '$' + numberWithCommas(grumpyUsdValue.toFixed(2)),
     grumpyBalanceWithout1T: grumpyBalanceWithout1T,
-    grumpyUsdValueWithout1T: grumpyUsdValueWithout1T,
+    grumpyUsdValueWithout1T: '$' + numberWithCommas(grumpyUsdValueWithout1T.toFixed(2)),
     dogeBalance: dogeBalance,
-    dogeUsdValue: dogeUsdValue,
+    dogeUsdValue: '$' + numberWithCommas(dogeUsdValue.toFixed(2)),
     ltcBalance: ltcBalance,
-    ltcUsdValue: ltcUsdValue,
-    totalUsdValue: totalUsdValue,
-    totalUsdValueWithout1TGrumpy: totalUsdValueWithout1TGrumpy
+    ltcUsdValue: '$' + numberWithCommas(ltcUsdValue.toFixed(2)),
+    totalUsdValue: '$' + numberWithCommas(totalUsdValue.toFixed(2)),
+    totalUsdValueWithout1TGrumpy: '$' + numberWithCommas(totalUsdValueWithout1TGrumpy.toFixed(2))
   }
   return res.send(charityInfo)
 })
