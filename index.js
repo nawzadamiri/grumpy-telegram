@@ -207,6 +207,8 @@ app.get('/charity-progress', async (req, res) => {
   // set Grumpy balance without 1T tokens
   const grumpyBalanceWithout1T = (grumpyBalance - 1000000000000).toLocaleString('fullwide', {useGrouping:false})
   const grumpyUsdValueWithout1T = grumpyToUsdRate * grumpyBalanceWithout1T
+  // use grumpy timestamp as the last updated because ethplorer takes the longest to update their data
+  const dataLastUpdated = grumpyTokenData.tokenInfo.lastUpdated
 
   // load doge wallet data
   let dogeWallet
@@ -285,7 +287,8 @@ app.get('/charity-progress', async (req, res) => {
     totalUsdValue: Number.parseFloat(totalUsdValue.toFixed(2)),
     totalUsdValueFormatted: '$' + numberWithCommas(totalUsdValue.toFixed(2)),
     totalUsdValueWithout1TGrumpy:  Number.parseFloat(totalUsdValueWithout1TGrumpy.toFixed(2)),
-    totalUsdValueWithout1TGrumpyFormatted: '$' + numberWithCommas(totalUsdValueWithout1TGrumpy.toFixed(2))
+    totalUsdValueWithout1TGrumpyFormatted: '$' + numberWithCommas(totalUsdValueWithout1TGrumpy.toFixed(2)),
+    lastUpdated: dataLastUpdated
   }
   return res.send(charityInfo)
 })
