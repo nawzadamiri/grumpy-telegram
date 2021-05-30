@@ -16,6 +16,7 @@ app.use(cors())
 const telegramToken = process.env.TELEGRAM_BOT_TOKEN
 const ethplorerApiKey = process.env.ETHPLORER_API_KEY
 const infuraId = process.env.INFURA_ID
+const etherScanApiKey = process.env.ETHERSCAN_API_KEY
 const grumpyTokenContract = '0x93b2fff814fcaeffb01406e80b4ecd89ca6a021b'
 
 let web3 = new Web3(new Web3.providers.HttpProvider(`https://mainnet.infura.io/${infuraId}`))
@@ -200,7 +201,17 @@ app.get('/charity-progress', async (req, res) => {
   const ethBalance = ethWallet.ETH.balance
   const ethUsdValue = ethBalance * ethWallet.ETH.price.rate
   // set Grumpy balance
-  const grumpyBalance = web3.utils.fromWei(grumpyTokenData.balance.toLocaleString('fullwide', {useGrouping:false}), 'gwei')
+  // the grumpy balance from ethplorer is on a very big delay (days) so we need to make a separate call to etherscan to get the correct balance
+  let grumpyBalanceInfo
+  try {
+    let request = await fetch(`https://api.etherscan.io/api?module=account&action=tokenbalance&contractaddress=${grumpyContractId}&address=${grumpyEthCharityWallet}&tag=latest&apikey=${etherScanApiKey}`)
+    let json = await request.json()
+    grumpyBalanceInfo = json
+  } catch (err) {
+    console.log('error getting grumpy balance', err)
+    return res.send(500)
+  }
+  const grumpyBalance = web3.utils.fromWei(grumpyBalanceInfo.result, 'gwei')
   // set Grumpy USD value
   const grumpyToUsdRate = Number.parseFloat(grumpyTokenData.tokenInfo.price.rate).toFixed(parseInt(grumpyTokenData.tokenInfo.decimals))
   const grumpyUsdValue = grumpyToUsdRate * grumpyBalance
