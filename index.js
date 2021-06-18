@@ -177,7 +177,7 @@ app.get('/charity-progress', async (req, res) => {
   const grumpyContractId = '0x93B2FfF814FCaEFFB01406e80B4Ecd89Ca6A021b'
   const grumpyEthCharityWallet = '0xa56891cfbd0175e6fc46bf7d647de26100e95c78'
   const dogeWalletId = 'D7FhT7L1hCeBYUou7kLyaHs75zKGUrv2c9'
-  const ltcWalletId = 'LQqzNNstz9C3h59K3pjzekjFr5uvrpABE4'
+  const ltcWalletId = 'ltc1qcyl0n27pmgyxyvgc0c8djewtdhqecg2gej36ga'
   function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
@@ -251,7 +251,7 @@ app.get('/charity-progress', async (req, res) => {
   // load litecoin wallet data
   let ltcWallet
   try {
-    let request = await fetch(`https://chain.so/api/v2/get_address_balance/LTC/${ltcWalletId}/500`)
+    let request = await fetch(`https://chain.so/api/v2/get_address_balance/LTC/${ltcWalletId}`)
     let json = await request.json()
     ltcWallet = json
   } catch (err) {
