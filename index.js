@@ -176,8 +176,8 @@ app.get('/charity-progress', async (req, res) => {
 
   const grumpyContractId = '0x93B2FfF814FCaEFFB01406e80B4Ecd89Ca6A021b'
   const grumpyEthCharityWallet = '0xa56891cfbd0175e6fc46bf7d647de26100e95c78'
-  const dogeWalletId = 'DMWU6225EFAHjEgWXQJZsYo3ecVCTvboGE'
-  const ltcWalletId = 'ltc1q2k308glzler2vhyjy8a4uayy5erzx7xwcud3xl'
+  const dogeWalletId = 'DNraTgWeiGN4TmWBqHWQMK8PcXSBbrcZMQ'
+  const ltcWalletId = 'LQqzNNstz9C3h59K3pjzekjFr5uvrpABE4'
   function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
