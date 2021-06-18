@@ -224,7 +224,7 @@ app.get('/charity-progress', async (req, res) => {
   // load doge wallet data
   let dogeWallet
   try {
-    let request = await fetch(`https://chain.so/api/v2/get_address_balance/DOGE/${dogeWalletId}/500`)
+    let request = await fetch(`https://chain.so/api/v2/get_address_balance/DOGE/${dogeWalletId}`)
     let json = await request.json()
     dogeWallet = json
   } catch (err) {
